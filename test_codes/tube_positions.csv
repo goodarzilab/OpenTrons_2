@@ -1,0 +1,27 @@
+Type,ID,Well
+primer,HPRT,A1
+primer,RBMS3,A2
+sample,Ctrl1,A3
+sample,Ctrl2,A4
+sample,Ctrl3,A5
+sample,A1,A6
+sample,A2,B1
+sample,A3,B2
+sample,B1,B3
+sample,B2,B4
+sample,B3,B5
+sample,C1,B6
+sample,C2,C1
+sample,C3,C2
+sample,Neg Ctrl1,A3
+sample,Neg Ctrl2,A4
+sample,Neg Ctrl3,A5
+sample,Neg A1,A6
+sample,Neg A2,B1
+sample,Neg A3,B2
+sample,Neg B1,B3
+sample,Neg B2,B4
+sample,Neg B3,B5
+sample,Neg C1,B6
+sample,Neg C2,C1
+sample,Neg C3,C2
