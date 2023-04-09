@@ -113,8 +113,8 @@ def run(protocol: protocol_api.ProtocolContext):
         
     # Thermocycling settings
     cycling_steps = [
-        {'temperature': 42, 'hold_time_seconds': 300},
-        {'temperature': 16, 'hold_time_seconds': 300},
+        {'temperature': 42, 'hold_time_minutes': 5},
+        {'temperature': 16, 'hold_time_minutes': 5},
     ]
     final_elongation = [{'temperature': 60, 'hold_time_seconds': 300}]
     final_hold = [{'temperature': 4, 'hold_time_seconds': None}]

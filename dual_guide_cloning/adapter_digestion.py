@@ -1,3 +1,19 @@
+AMOUNTS_TO_ADD = {
+    'fd_buffer': 2,
+    'bpu1102_enzyme': 1,
+    'bstXI_enzyme': 1,
+    'insert': 16,
+}
+
+TOTAL_RxN_VOL = 20
+
+AMOUNTS_TO_ADD['water'] = TOTAL_RxN_VOL - sum(AMOUNTS_TO_ADD.values())
+
+# Wells used for cloning
+WELLS_USED_FOR_CLONING = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8']
+
+
+
 from opentrons import protocol_api
 import math
 
@@ -9,6 +25,13 @@ metadata = {
 }
 
 def run(protocol: protocol_api.ProtocolContext):
+
+    protocol.comment('These are the stock solutions. Please ensure that they are at the correct slots before continuing.')
+    protocol.comment(AMOUNTS_TO_ADD)
+
+    if AMOUNTS_TO_ADD['water'] > 0:
+        protocol.comment("Water is required. Please add water to the thermoblock at position C4 if you haven't already.")
+
 
     # Labware
     temp_mod = protocol.load_module('temperature module gen2', '4')
@@ -34,16 +57,15 @@ def run(protocol: protocol_api.ProtocolContext):
     fd_buffer = thermoblock.wells_by_name()['C1']
     bpu1102_enzyme = thermoblock.wells_by_name()['C2']
     bstXI_enzyme = thermoblock.wells_by_name()['C3']
+    if AMOUNTS_TO_ADD['water'] > 0:
+        water = thermoblock.wells_by_name()['C4']
 
     # Thermoblock temperature
     temp_mod.set_temperature(4)
     temp_mod.status  # 'holding at target'
 
-    # Wells used for cloning
-    wells_used_for_cloning = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8']
-
     # assert that there are no duplicate wells
-    assert len(wells_used_for_cloning) == len(set(wells_used_for_cloning)), 'Duplicate wells found in wells_used_for_cloning'
+    assert len(WELLS_USED_FOR_CLONING) == len(set(WELLS_USED_FOR_CLONING)), 'Duplicate wells found in wells_used_for_cloning'
 
     ## Transfer materials to wells
     if thermocycler.lid_position != 'open':
@@ -51,23 +73,25 @@ def run(protocol: protocol_api.ProtocolContext):
         
     # We digest in steps
     # Transfer first enzyme to thermocycler plate
-    for well_name in wells_used_for_cloning:
+    for well_name in WELLS_USED_FOR_CLONING:
         well = plate_96_well_with_inserts.wells_by_name()[well_name]
 
         # Transfer insert
-        p20.transfer(2, fd_buffer, well, new_tip='always')
-        p20.transfer(1, bpu1102_enzyme, well, new_tip='always')
+        p20.transfer(AMOUNTS_TO_ADD['fd_buffer'], fd_buffer, well, new_tip='always')
+        if AMOUNTS_TO_ADD['water'] > 0:
+            p20.transfer(AMOUNTS_TO_ADD['water'], water, well)
+        p20.transfer(AMOUNTS_TO_ADD['bpu1102_enzyme'], bpu1102_enzyme, well, new_tip='always')
         p20.pick_up_tip()
-        p20.aspirate(16, well)
-        p20.dispense(16, tc_plate.wells_by_name()[well_name])
+        p20.aspirate(AMOUNTS_TO_ADD['insert'], well)
+        p20.dispense(AMOUNTS_TO_ADD['insert'], tc_plate.wells_by_name()[well_name])
         p20.mix(10, 10, tc_plate.wells_by_name()[well_name])
         p20.touch_tip()
         p20.blow_out()
         p20.drop_tip()
 
     # Thermocycling settings
-    incubate = [{'temperature': 37, 'hold_time_seconds': 3600},
-                {'temperature': 80, 'hold_time_seconds': 300}]
+    incubate = [{'temperature': 37, 'hold_time_minutes': 60},
+                {'temperature': 80, 'hold_time_minutes': 5}]
     # Run thermocycling program
     protocol.comment('Starting thermocycling...')
     if thermocycler.lid_position != 'closed':
@@ -81,13 +105,13 @@ def run(protocol: protocol_api.ProtocolContext):
     if thermocycler.lid_position != 'open':
         thermocycler.open_lid()
         
-    for well_name in wells_used_for_cloning:
+    for well_name in WELLS_USED_FOR_CLONING:
         well = plate_96_well_with_inserts.wells_by_name()[well_name]
 
         # Transfer insert
         p20.pick_up_tip()
-        p20.aspirate(1, bstXI_enzyme)
-        p20.dispense(1, tc_plate.wells_by_name()[well_name])
+        p20.aspirate(AMOUNTS_TO_ADD['bstXI_enzyme'], bstXI_enzyme)
+        p20.dispense(AMOUNTS_TO_ADD['bstXI_enzyme'], tc_plate.wells_by_name()[well_name])
         p20.mix(5, 10, tc_plate.wells_by_name()[well_name])
         p20.touch_tip()
         p20.blow_out()
