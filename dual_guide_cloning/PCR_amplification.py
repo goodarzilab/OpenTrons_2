@@ -23,7 +23,7 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_20ul_2 = protocol.load_labware('opentrons_96_filtertiprack_20ul', 6, '20µL_Tip_Rack')
 
     thermocycler = protocol.load_module('thermocycler')
-    tc_plate = thermocycler.load_labware('nest_96_wellplate_200ul_flat')
+    tc_plate = thermocycler.load_labware('nest_96_wellplate_200ul_flat', 'Thermocycler_Plate')
 
     # Pipettes
     p200 = protocol.load_instrument('p300_single_gen2', 'right', tip_racks=[tiprack_200ul_1, tiprack_200ul_2])
