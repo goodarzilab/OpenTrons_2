@@ -12,7 +12,6 @@ sample,S2,B2
 """
 
 
-
 import pandas as pd
 from opentrons import protocol_api
 
@@ -71,8 +70,6 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_20ul_1 = protocol.load_labware('opentrons_96_filtertiprack_20ul', '7')
     tiprack_20ul_2 = protocol.load_labware('opentrons_96_filtertiprack_20ul', '8')
     tiprack_20ul_3 = protocol.load_labware('opentrons_96_filtertiprack_20ul', '9')
-    tiprack_20ul_4 = protocol.load_labware('opentrons_96_filtertiprack_20ul', '10')
-    tiprack_20ul_5 = protocol.load_labware('opentrons_96_filtertiprack_20ul', '11')
     tiprack_200ul_1 = protocol.load_labware('opentrons_96_filtertiprack_200ul', '5')
 
   
