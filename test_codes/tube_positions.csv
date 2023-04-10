@@ -9,19 +9,17 @@ sample,A2,B1
 sample,A3,B2
 sample,B1,B3
 sample,B2,B4
-sample,B3,B5
-sample,C1,B6
-sample,C2,C1
-sample,C3,C2
-sample,Neg Ctrl1,A3
-sample,Neg Ctrl2,A4
-sample,Neg Ctrl3,A5
-sample,Neg A1,A6
-sample,Neg A2,B1
-sample,Neg A3,B2
-sample,Neg B1,B3
-sample,Neg B2,B4
-sample,Neg B3,B5
-sample,Neg C1,B6
-sample,Neg C2,C1
-sample,Neg C3,C2
+sample,C1,B5
+sample,C2,B6
+sample,C3,C1
+sample,Neg Ctrl1,C2
+sample,Neg Ctrl2,C3
+sample,Neg Ctrl3,C4
+sample,Neg A1,C5
+sample,Neg A2,C6
+sample,Neg A3,D1
+sample,Neg B1,D2
+sample,Neg B2,D3
+sample,Neg C1,D4
+sample,Neg C2,D5
+sample,Neg C3,D6

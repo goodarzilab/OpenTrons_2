@@ -13,14 +13,13 @@ AMOUNTS_TO_ADD['water'] = TOTAL_RxN_VOL - sum(AMOUNTS_TO_ADD.values())
 WELLS_USED_FOR_CLONING = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8']
 
 
-
 from opentrons import protocol_api
 import math
 
 metadata = {
-    'protocolName': 'Adapters',
+    'protocolName': 'Adapter digestion of inserts for dual guide cloning Golden Gate',
     'author': 'Ashir Borah <ashir.borah@ucsf.edu>',
-    'description': 'Adapter digestion of inserts',
+    'description': 'Adapter digestion of inserts to remove PCR primers for dual guide cloning Golden Gate',
     'apiLevel': '2.13'
 }
 
@@ -74,6 +73,7 @@ def run(protocol: protocol_api.ProtocolContext):
         well = plate_96_well_with_inserts.wells_by_name()[well_name]
 
         # Transfer insert
+        #TODO: convert to master mix to minimize pipetting
         p20.transfer(AMOUNTS_TO_ADD['fd_buffer'], fd_buffer, well, new_tip='always')
         if AMOUNTS_TO_ADD['water'] > 0:
             p20.transfer(AMOUNTS_TO_ADD['water'], water, well)

@@ -22,13 +22,14 @@ metadata = {
 }
 
 def map_tube_to_well(dataframe, p384, temp_labware, primer_tube_positions, sample_tube_positions, p20_single):
-    for index, col in dataframe.iteritems():
+    for index, col in dataframe.items():
         ## Check if the primer is the same, then use the distribute function
-        primers_in_colums = set([x.split(',')[0] for x in col.values])
-        if len(primer_in_col) != 1:
+        primers_in_columns = set([x.split(',')[0] for x in col.values])
+        if len(primers_in_columns) != 1:
             ## If there are multiple primers in the column, then we need to distribute the primer to each well separately
             for row, location in enumerate(col):
-                print('primer {} sample {}'.format(primer, sample))
+                [primer, sample] = [x.strip()  for x in location.split(',')]
+                #print('primer {} sample {}'.format(primer, sample))
                 primer_source_well = primer_tube_positions.loc[primer, 'Well']
                 sample_source_well = sample_tube_positions.loc[sample, 'Well']
                 dest_well = p384.wells()[index * len(dataframe.rows) + row]
@@ -38,18 +39,15 @@ def map_tube_to_well(dataframe, p384, temp_labware, primer_tube_positions, sampl
                 # Transfer primer and sample to the destination well
                 p20_single.transfer(2.5, primer_source_well, dest_well)
                 p20_single.transfer(2.5, sample_source_well, dest_well)
-        
         else:
-            
-            primer_source_well = primer_tube_positions.loc[primer, 'Well']
-            primer_source_well = temp_labware.wells_by_name()[primer_source_well]
-            p20_single.distribute(2.5, primer_source_well, [p384.wells()[index * len(dataframe.rows) + row] for row, location in enumerate(col)])
-            
             for row, location in enumerate(col):
                 [primer, sample] = [x.strip()  for x in location.split(',')]
-                print('primer {} sample {}'.format(primer, sample))
+                primer_source_well = primer_tube_positions.loc[primer, 'Well']
+                primer_source_well = temp_labware.wells_by_name()[primer_source_well]
+                p20_single.distribute(2.5, primer_source_well, [p384.wells()[index * len(dataframe.index) + row] for row, location in enumerate(col)])
+                #print('primer {} sample {}'.format(primer, sample))
                 sample_source_well = sample_tube_positions.loc[sample, 'Well']
-                dest_well = p384.wells()[index * len(dataframe.rows) + row]
+                dest_well = p384.wells()[index * len(dataframe.index) + row]
                 sample_source_well = temp_labware.wells_by_name()[sample_source_well]
 
                 # Transfer primer and sample to the destination well
@@ -91,10 +89,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # Set index for primer and sample tube positions
     primer_tube_positions.set_index('ID', inplace=True)
     sample_tube_positions.set_index('ID', inplace=True)
-    
-    print(primer_tube_positions.head())
-    print(sample_tube_positions.head())
-    
+
     #import pdb; pdb.set_trace()
 
     # Transfer components
