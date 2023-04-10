@@ -12,15 +12,18 @@ Purify the ligation reaction using MagBeads at 0.50 ratio. Fill up volume first 
 
 '''
 
+TOTAL_RxN_VOL = 10
+
 AMOUNTS_TO_ADD = {
-    'T4_ligase_buffer': 2,
-    'first_lig_product': 15,
     'pJR85_digested': 4,
-    'T4_dna_ligase': 1,
-    'BsmBI_v2': 1
+    'insert_dig': 2,
+    'T4_ligase_buffer': 1,
+    'T4_dna_ligase': 1
 }
 
-TOTAL_RxN_VOL = 20
+AMOUNTS_TO_ADD['water'] = TOTAL_RxN_VOL - sum(AMOUNTS_TO_ADD.values())
+
+
 MASTERMIX_VOL = 5
 
 from opentrons import protocol_api
@@ -46,7 +49,7 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack_200ul_2 = protocol.load_labware('opentrons_96_filtertiprack_200ul', 3, '200µL Tip Rack')
     tiprack_20ul_1 = protocol.load_labware('opentrons_96_filtertiprack_20ul', 5, '20µL Tip Rack')
     tiprack_20ul_2 = protocol.load_labware('opentrons_96_filtertiprack_20ul', 6, '20µL Tip Rack')
-    plate_96_well_assembled = protocol.load_labware('nest_96_wellplate_200ul_flat', 9, '96 Well Assembled Plate for ligation')
+    plate_96_well_being_assembled = protocol.load_labware('nest_96_wellplate_200ul_flat', 9, '96 Well Assembled Plate for ligation')
    
     
 
@@ -75,29 +78,40 @@ def run(protocol: protocol_api.ProtocolContext):
     # Prepare mastermix
     ## Add an additional 15% to the mastermix volume to account for pipette error
     total_wells = math.ceil(len(wells_used_for_cloning) * 1.15)
-    p200.transfer(total_wells*2, T4_ligase_buffer, mastermix, new_tip='always')
-    p200.transfer(total_wells*1, T4_dna_ligase, mastermix, new_tip='always')
-    p200.transfer(total_wells*4, pJR85_digested, mastermix, new_tip='always')
-    p200.transfer(total_wells*2, water, mastermix)
+    p200.transfer(total_wells*AMOUNTS_TO_ADD['T4_ligase_buffer'], T4_ligase_buffer, mastermix,)
+    p200.transfer(total_wells*AMOUNTS_TO_ADD['pJR85_digested'], pJR85_digested, mastermix)
+    p200.transfer(total_wells*AMOUNTS_TO_ADD['water'], water, mastermix)
+    p200.transfer(total_wells*AMOUNTS_TO_ADD['T4_dna_ligase'], T4_dna_ligase, mastermix)
+    
     p200.pick_up_tip()
-    p200.mix(10, total_wells*5, mastermix)
+    p200.mix(10, TOTAL_RxN_VOL/2, mastermix)
     p200.touch_tip(mastermix)
     p200.blow_out()
     p200.drop_tip()
 
+    ## Create the mastermix liquid definition
+    mastermix_liquid = protocol.define_liquid(
+        'mastermix',
+        density=1.05,
+        viscosity=1.0,
+        container=mastermix,
+        volume=MASTERMIX_VOL*total_wells
+    )
+
+
+
+    # Distribute mastermix
+
+
     ## Maybe use just wells() instead of wells_by_name()?
-    p200.distribute(8, mastermix, [plate_96_well_assembled.wells() for wells in wells_used_for_cloning])
+    p200.distribute(8, mastermix, [plate_96_well_being_assembled.wells()[wells] for wells in wells_used_for_cloning])
 
     # Transfer mastermix and insert
     for well_name in wells_used_for_cloning:
         well = plate_96_well_with_inserts.wells_by_name()[well_name]
 
         # Transfer insert
-        p20.pick_up_tip()
-        p20.aspirate(2, well)
-        p20.dispense(2, plate_96_well_assembled.wells_by_name()[well_name])
-        p20.blow_out()
-        p20.drop_tip()
+        p20.transfer(AMOUNTS_TO_ADD['insert_amount'], well, plate_96_well_being_assembled.wells_by_name()[well_name], new_tip='always', blow_out=True, mix_after=(3, 10))
 
    ## Tell user to move the plate to a thermocycler for 16hours incubation at 16C
     protocol.comment('Please move the plate to a thermocycler for 16 hours incubation at 16C.')

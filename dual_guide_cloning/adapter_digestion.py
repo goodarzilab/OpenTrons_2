@@ -40,8 +40,6 @@ def run(protocol: protocol_api.ProtocolContext):
         label="Temperature-Controlled Stocks",
     )
     plate_96_well_with_inserts = protocol.load_labware('nest_96_wellplate_200ul_flat', 1, '96 Well Insert Plate')
-    tiprack_200ul_1 = protocol.load_labware('opentrons_96_filtertiprack_200ul', 2, '200µL Tip Rack')
-    tiprack_200ul_2 = protocol.load_labware('opentrons_96_filtertiprack_200ul', 3, '200µL Tip Rack')
     tiprack_20ul_1 = protocol.load_labware('opentrons_96_filtertiprack_20ul', 5, '20µL Tip Rack')
     tiprack_20ul_2 = protocol.load_labware('opentrons_96_filtertiprack_20ul', 6, '20µL Tip Rack')
 
@@ -49,7 +47,6 @@ def run(protocol: protocol_api.ProtocolContext):
     tc_plate = thermocycler.load_labware('nest_96_wellplate_200ul_flat')
 
     # Pipettes
-    p200 = protocol.load_instrument('p300_single_gen2', 'right', tip_racks=[tiprack_200ul_1, tiprack_200ul_2])
     p20 = protocol.load_instrument('p20_single_gen2', 'left', tip_racks=[tiprack_20ul_1, tiprack_20ul_2])
 
 
