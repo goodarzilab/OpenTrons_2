@@ -54,8 +54,8 @@ def run(protocol: protocol_api.ProtocolContext):
     
 
     # Pipettes
-    p200 = protocol.load_instrument('p300_single_gen2', 'right', tip_racks=[tiprack_200ul_1, tiprack_200ul_2])
-    p20 = protocol.load_instrument('p20_single_gen2', 'left', tip_racks=[tiprack_20ul_1, tiprack_20ul_2])
+    p200 = protocol.load_instrument('p300_single_gen2', 'left', tip_racks=[tiprack_200ul_1, tiprack_200ul_2])
+    p20 = protocol.load_instrument('p20_single_gen2', 'right', tip_racks=[tiprack_20ul_1, tiprack_20ul_2])
 
     ## Prompt to remind user that pJR85 needs to be digested
     protocol.comment('This protocol requires that pJR85 has been digested with BsmBI_v2. Please ensure that this has been done before continuing.')
@@ -73,7 +73,7 @@ def run(protocol: protocol_api.ProtocolContext):
     temp_mod.status  # 'holding at target'
 
     # Wells used for cloning
-    wells_used_for_cloning = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8']
+    wells_used_for_cloning = ['A1', 'A2']
     
     # Prepare mastermix
     ## Add an additional 15% to the mastermix volume to account for pipette error
@@ -89,22 +89,9 @@ def run(protocol: protocol_api.ProtocolContext):
     p200.blow_out()
     p200.drop_tip()
 
-    ## Create the mastermix liquid definition
-    mastermix_liquid = protocol.define_liquid(
-        'mastermix',
-        density=1.05,
-        viscosity=1.0,
-        container=mastermix,
-        volume=MASTERMIX_VOL*total_wells
-    )
-
-
-
-    # Distribute mastermix
-
 
     ## Maybe use just wells() instead of wells_by_name()?
-    p200.distribute(8, mastermix, [plate_96_well_being_assembled.wells()[wells] for wells in wells_used_for_cloning])
+    p200.distribute(8, mastermix, [plate_96_well_being_assembled.wells_by_name()[wells] for wells in wells_used_for_cloning])
 
     # Transfer mastermix and insert
     for well_name in wells_used_for_cloning:
